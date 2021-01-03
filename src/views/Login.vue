@@ -110,8 +110,8 @@
       login() {
         NProgress.start();
         this.loading =true;
-        var params = { UserName: this.loginModel.Account, Password: this.loginModel.Password };
-        requestLogin(params).then(res => {
+        // var params = { UserName: this.loginModel.Account, Password: this.loginModel.Password };
+        requestLogin(this.loginModel).then(res => {
           NProgress.done();
         this.loading =false;
           if (res.data.Code !== 1) return this.$message.error(res.data.Msg);
@@ -122,6 +122,7 @@
 
           var ms = store.getMenus();
           store.setStore("cur-user-menu", JSON.stringify(ms));
+          console.info(this.$router);
           this.$router.addRoutes(ms);
           this.$router.push({ path: "/" });
         });

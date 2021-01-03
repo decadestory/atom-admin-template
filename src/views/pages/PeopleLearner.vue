@@ -35,6 +35,37 @@
       </el-form>
     </el-card>
 
+    <el-card class="box-card" v-loading="initLoading">
+      <el-table :data="baInfos" size="mini" stripe border>
+          <el-table-column prop="UserName" label="姓名" width="100"></el-table-column>
+          <el-table-column prop="MobilePhone" label="手机号" width="100"></el-table-column>
+          <el-table-column prop="IDNum" label="身份证" width="150"></el-table-column>
+          <el-table-column prop="ParentUserName" label="上级姓名" width="100"></el-table-column>
+          <el-table-column prop="ParentUserMobilePhone" label="上级手机号" width="100"></el-table-column>
+          <el-table-column prop="RegionName" label="销售区域"></el-table-column>
+          <el-table-column prop="CIIC" label="员工编号"></el-table-column>
+          <el-table-column prop="DaProName" label="BA属性"></el-table-column>
+          <el-table-column prop="OnboardTimeStr" label="入职日期"></el-table-column>
+          <el-table-column prop="LeaveDateStr" label="离职日期"></el-table-column>
+          <el-table-column prop="ApproveStatusStr" label="审核状态"></el-table-column>
+          <el-table-column prop="StatusID" label="在职状态" :formatter="formatStatusID"></el-table-column>
+          <el-table-column label="操作" fixed="right">
+              <template slot-scope="scope">
+                  <el-button size="mini" plain @click="showDetail(scope.row.UserID)">查看</el-button>
+              </template>
+          </el-table-column>
+      </el-table>
+
+      <div footer-pager style="text-align: left; margin-top:10px;">
+          <el-pagination background layout="prev, pager, next, sizes,total"
+              @size-change="query.pageizeChange" @current-change="query.changePage"
+              :page-sizes="[15, 50,100, 200, 500]" :page-size="query.PageSize"
+              :current-page="query.PageIndex" :total="query.Total" style=" margin-left:-5px;">
+          </el-pagination>
+      </div>
+  </el-card>
+
+
   </div>
 </template>
 

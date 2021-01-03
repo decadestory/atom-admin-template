@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    Home
+    CommonConfig
 
   </div>
 </template>

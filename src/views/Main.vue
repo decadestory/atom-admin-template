@@ -3,52 +3,22 @@
 
     <el-container style="min-width:1040px;">
       <el-header>
-        <el-menu :default-active="activeIndex2" class="el-menu-demo" mode="horizontal" @select="handleSelect"
-          background-color="#16181d" text-color="#fff" active-text-color="#ffd04b" menu-trigger="click"
-          unique-opened="true" collapse-transition="false">
+        <el-menu class="el-menu-demo" mode="horizontal" background-color="#16181d" text-color="#fff"
+          active-text-color="#fff" menu-trigger="click" unique-opened="true" collapse-transition="false">
           <el-menu-item index="0">
             <img height="38" src="https://sfa-cn.lorealchina.com/sites/site_login/dist/images/logo.png"
               alt="element-logo" class="nav-logo">
           </el-menu-item>
 
-          <el-menu-item index="1"><i class="el-icon-s-home"></i>首页</el-menu-item>
-          <el-menu-item index="2"><i class="el-icon-s-grid"></i>主数据管理</el-menu-item>
+
+          <el-menu-item v-for="(cm,index) in curMenu" :key="index" :index="index"></i>
+            <router-link :to="cm.defaultUrl">{{cm.name}}</router-link>
+          </el-menu-item>
+          <!-- <el-menu-item index="2"><i class="el-icon-s-grid"></i>主数据管理</el-menu-item>
           <el-menu-item index="3"><i class="el-icon-s-shop"></i>业务管理</el-menu-item>
           <el-menu-item index="4"><i class="el-icon-s-comment"></i>报表管理</el-menu-item>
-          <el-menu-item index="5"><i class="el-icon-setting"></i>配置中心</el-menu-item>
-          <!-- 
-          <el-submenu index="3">
-            <template slot="title"><i class="el-icon-s-grid"></i>主数据管理</template>
-            <el-menu-item index="3-1">人员管理</el-menu-item>
-            <el-menu-item index="3-2">门店管理</el-menu-item>
-            <el-menu-item index="3-3">产品管理</el-menu-item>
-          </el-submenu>
+          <el-menu-item index="5"><i class="el-icon-setting"></i>配置中心</el-menu-item> -->
 
-          <el-submenu index="2">
-            <template slot="title"><i class="el-icon-s-shop"></i>业务管理</template>
-            <el-menu-item index="2-1">拜访管理</el-menu-item>
-            <el-menu-item index="2-2">计划管理</el-menu-item>
-            <el-menu-item index="2-3">审核数据</el-menu-item>
-          </el-submenu>
-
-          <el-submenu index="6">
-            <template slot="title"><i class="el-icon-s-comment"></i>报表管理</template>
-            <el-menu-item index="2-1">拜访报表</el-menu-item>
-            <el-menu-item index="2-2">其它报表</el-menu-item>
-          </el-submenu> -->
-
-          <!-- <el-submenu index="7">
-            <template slot="title"><i class="el-icon-s-comment"></i>消息资料</template>
-            <el-menu-item index="2-1">系统消息</el-menu-item>
-            <el-menu-item index="2-2">资料管理</el-menu-item>
-          </el-submenu> -->
-
-          <!-- <el-submenu index="8">
-            <template slot="title"><i class="el-icon-setting"></i>配置中心</template>
-            <el-menu-item index="2-1">字典管理</el-menu-item>
-            <el-menu-item index="2-2">统一配置</el-menu-item>
-            <el-menu-item index="2-3">维度配置</el-menu-item>
-          </el-submenu> -->
 
         </el-menu>
 
@@ -88,22 +58,22 @@
       </el-header>
       <el-main>
 
-        <div sub-menu>
-          <div @click.stop.prevent="showsList" >
-            <div sub-menu-tilte >人员管理 <i class="el-icon-caret-right"></i></div>
-            <div  sub-menu-tilte-list v-if="showSubList==true">
-              <div sub-menu-tilte><i class="el-icon-menu"></i> 门店管理</div>
+        <div sub-menu v-if="curPageMenus!=null">
+          <div @click.stop.prevent="showsList">
+            <div sub-menu-tilte v-for="m in curPageMenus.subs" :class="{activeSub:m.isCur}">{{m.name}} <i class="el-icon-caret-right"></i></div>
+            <!-- <div sub-menu-tilte-list v-if="showSubList==true"> -->
+            <!-- <div sub-menu-tilte><i class="el-icon-menu"></i> 门店管理</div>
               <div sub-menu-tilte><i class="el-icon-menu"></i> 产品管理</div>
-              <div sub-menu-tilte><i class="el-icon-menu"></i> 销售区域管理</div>
-            </div>
+              <div sub-menu-tilte><i class="el-icon-menu"></i> 销售区域管理</div> -->
+            <!-- </div> -->
           </div>
-       
+
 
           <div sub-menu-list>
-            <div sub-menu-item>BA管理</div>
-            <div sub-menu-item>DP管理</div>
+            <div sub-menu-item v-for="m in curPageMenus.thirds" :class="{active:m.isCur}" @click="clickThird(m)">{{m.name}}</div>
+            <!-- <div sub-menu-item>DP管理</div>
             <div sub-menu-item>DA管理</div>
-            <div sub-menu-item>J人员管理</div>
+            <div sub-menu-item>J人员管理</div> -->
           </div>
         </div>
 
@@ -124,6 +94,8 @@
 <script>
 
   import HelloWorld from '@/components/HelloWorld.vue'
+  import store from "../utils/storage";
+
 
   export default {
     name: 'Home',
@@ -133,7 +105,15 @@
     data() {
       return {
         showSubList: false,
+        curMenu: store.getCurMenu(),
+        curPageCode: '',
+        curPageMenus: {},
       };
+    },
+    mounted() {
+      this.curPageCode = this.$router.history.current.meta.code;
+      this.curPageMenus = store.getCurMenusInfo(this.curPageCode);
+      console.info("curBreads", this.curPageMenus);
     },
     methods: {
       logout() {
@@ -143,7 +123,17 @@
       showsList() {
         this.showSubList = !this.showSubList;
       },
+      clickThird(m){
+        this.$router.push(m.path);
+      },
     },
+    watch: {
+      $route(to, from) {
+        this.curPageCode = this.$router.history.current.meta.code;
+        this.curPageMenus = store.getCurMenusInfo(this.curPageCode);
+        console.info("curBreads", this.curPageMenus);
+      }
+    }
   }
 </script>
 
@@ -198,6 +188,10 @@
     padding: 0 10px;
   }
 
+  .el-menu>>>.el-menu-item a {
+    text-decoration: none;
+  }
+
   [sub-menu] {
     background: #f9f9ff;
     font-size: 12px;
@@ -214,7 +208,7 @@
     cursor: pointer;
   }
 
-  [sub-menu-tilte-list]{
+  [sub-menu-tilte-list] {
     display: inline-block;
   }
 
@@ -230,5 +224,15 @@
     margin-left: 10px;
     border-radius: 3px;
     cursor: pointer;
+    color: #aaa;
+  }
+
+  .active{
+    color:#409EFF;
+    font-weight: bold;
+  }
+
+  .activeSub{
+    background: #44288c;
   }
 </style>

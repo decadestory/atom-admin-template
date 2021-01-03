@@ -45,7 +45,7 @@ export const imgServerHost = params => {
 };
 
 export const requestLogin = params => {
-    var result = axios.post(`/api/Auth/SignIn`, params);
+    var result = axios.post(`/api/Auth/Auth`, params);
     return result;
 };
 

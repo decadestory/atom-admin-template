@@ -41,12 +41,13 @@ export default {
                 path: element.VUrl,
                 name: element.Name,
                 code: element.Code,
-                compath: `@/components/` + element.CPath + `.vue`,
-                component: r => require([`@/components/` + element.CPath + `.vue`], r),
+                compath: element.CPath + `.vue`,
+                component: () => import("../"+element.CPath+ `.vue`),
                 icon: element.Icon,
                 children: this.getSubMenus(element.Code),
                 show: true,
-                defaultUrl:element.DefaultUrl
+                defaultUrl:element.DefaultUrl,
+                meta: {code: element.Code}
             });
         });
 
@@ -66,11 +67,12 @@ export default {
                     path: element.VUrl,
                     name: element.Name,
                     code: element.Code,
-                    compath: `@/components/` + element.CPath + `.vue`,
-                    component: r => require([`@/components/` + element.CPath + `.vue`], r),
+                    compath: element.CPath + `.vue`,
+                    component: () => import("../"+element.CPath+ `.vue`),
                     icon: element.Icon,
                     children: this.getSubMenus(element.Code),
-                    show: true
+                    show: true,
+                    meta: {code: element.Code}
                 });
             }
         });
@@ -89,6 +91,49 @@ export default {
         });
 
         return openeds;
+    },
+    getCurMenusInfo(code) {
+
+        if(code=="main") return null;
+
+        var lsUser = this.getStore('cur-user-info');
+        if (lsUser == null) return openeds;
+        var loginInfo = JSON.parse(lsUser);
+        if (loginInfo.Permissions == null || loginInfo.Permissions == []) return {};
+
+        var curThird = {};
+        loginInfo.Permissions.forEach(element => {
+            if (element.Code == code) curThird = element;
+        });
+
+        if(!curThird) return null;
+
+        var curSub = {};
+        loginInfo.Permissions.forEach(element => {
+            if (element.Code == curThird.ParentCode) curSub=element;
+        });
+        if(!curSub) return null;
+
+        var curFirst = {};
+        loginInfo.Permissions.forEach(element => {
+            if (element.Code == curSub.ParentCode) curFirst=element;
+        });
+        if(!curFirst) return null;
+
+        var subs = [];
+        loginInfo.Permissions.forEach(element => {
+            if (element.ParentCode == curFirst.Code) 
+            subs.push({path:element.VUrl,name:element.Name,isCur:element.Code ==curSub.Code});
+        });
+
+        var thirds = [];
+        loginInfo.Permissions.forEach(element => {
+            if (element.ParentCode == curSub.Code) 
+            thirds.push({path:element.VUrl,name:element.Name,isCur:element.Code ==code});
+        });
+
+
+        return {subs,thirds};
     },
     getCurMenu(){
         var menu = [];
